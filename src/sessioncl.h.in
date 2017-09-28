@@ -1,0 +1,2 @@
+#define sessioncl_VERSION_MAJOR @sessioncl_VERSION_MAJOR@
+#define sessioncl_VERSION_MINOR @sessioncl_VERSION_MINOR@
