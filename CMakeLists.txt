@@ -25,3 +25,7 @@ find_package(LibClang REQUIRED)
   # Set linker libraries
   target_link_libraries(sessioncl "${LIBCLANG_LIBRARY}")
 
+# find libclang
+find_package(Boost COMPONENTS system filesystem REQUIRED)
+  target_link_libraries(sessioncl "${Boost_SYSTEM_LIBRARY}"
+                                  "${Boost_FILESYSTEM_LIBRARY}")

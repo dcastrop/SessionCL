@@ -1,2 +1,8 @@
+#ifndef __CONFIG__
+#define __CONFIG__
+
 #define sessioncl_VERSION_MAJOR @sessioncl_VERSION_MAJOR@
 #define sessioncl_VERSION_MINOR @sessioncl_VERSION_MINOR@
+#define sessioncl_VERSION_PATCH @sessioncl_VERSION_PATCH@
+
+#endif

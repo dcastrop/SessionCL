@@ -55,8 +55,10 @@ This project uses the CMake build automation tools. The scripts `clean.sh`,
 `configure.sh` and `build.sh` have been added for simplicify.
 
 1. `./clean.sh` will remove the directory `build`.
+
 2. `./configure.sh` creates directory `build` (if needed), and generates the
    build (Makefile) files using `cmake`.
+
 3. `./build.sh` runs `./configure.sh` (if needed), and builds the project.
    The output binary file is placed in `./build/sessioncl`
 
@@ -67,13 +69,15 @@ the options. The basic usage is:
 
 `Usage: ./sessioncl [options] <file>...`
 
+***TODO:*** add usage description as we start filling project with details.
+
 ## Testing
 
 ***FIXME*** not yet done.
 
 ## Internals
 
-### src
+The source files are the following:
 
 ```
 .
@@ -81,15 +85,20 @@ the options. The basic usage is:
 ├── sessioncl.cpp
 └── sessioncl.h.in
 ```
+
 Under directory ./src, there is a basic prototype that uses `libclang` to
 to parse a C program, and traverses the `CLang` AST representation of the
 program.
 
-## Utils
 
-General information, orthogonal to the project.
+## General CLang and OpenCL information.
 
-### Printing the AST in a human-readable way
+General information, useful for manually testing/debugging the sessioncl tool.
+Includes information about the clang AST, and (Altera) OpenCL.
+
+### clang and libclang
+
+#### Printing the AST in a human-readable way
 
 * The `test` directory contains small C program examples.  **So far, no OpenCL
   program was added to the repository**.
@@ -101,10 +110,10 @@ General information, orthogonal to the project.
 $ clang -Xclang -ast-dump -fsyntax-only <test_file>.cpp
 ```
 
-### AST description
+#### AST description
 
 * CLang full AST (i.e. clang top level declaration) is represented using
   `TranslationUnitDecl`:
-  - FIXME
+  - ***TODO***
 
-### AST matcher
+#### AST matcher
