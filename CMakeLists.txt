@@ -12,9 +12,9 @@ set (sessioncl_VERSION_PATCH 0)
 # Configuration file
 configure_file (
   "${PROJECT_SOURCE_DIR}/src/sessioncl.h.in"
-  "${PROJECT_BINARY_DIR}/cmake/sessioncl.h" )
+  "${PROJECT_BINARY_DIR}/build/sessioncl.h" )
 # Include directory for configuration file
-include_directories("${PROJECT_BINARY_DIR}/cmake")
+include_directories("${PROJECT_BINARY_DIR}/build")
 # CMAKE modules
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
