@@ -1,4 +1,8 @@
+
+#ifdef BOOST_FILESYSTEM
 #include <boost/filesystem.hpp>
+#endif
+
 #include <clang-c/Index.h>
 #include <iostream>
 #include <stdio.h>
@@ -9,7 +13,9 @@
 
 #include "sessioncl.h"
 
+#ifdef BOOST_FILESYSTEM
 namespace fs = boost::filesystem;
+#endif
 using namespace std;
 
 ostream& operator<<(ostream& stream, const CXString& str)
@@ -63,12 +69,14 @@ int main (int argc, char **argv){
     };
   int option_index = 0;
 
+  #ifdef BOOST_FILESYSTEM
   fs::path command = argv[0];
   int len_command = strlen(command.filename().string().c_str())+1;
   prog_name = (char *) malloc (sizeof(char) * len_command);
   memcpy (prog_name
          , command.filename().string().c_str()
          , sizeof(char) * len_command);
+  #endif
 
   while ((opt = getopt_long ( argc
                             , argv

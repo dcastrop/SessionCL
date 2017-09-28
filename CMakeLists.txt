@@ -26,6 +26,11 @@ find_package(LibClang REQUIRED)
   target_link_libraries(sessioncl "${LIBCLANG_LIBRARY}")
 
 # find libclang
-find_package(Boost COMPONENTS system filesystem REQUIRED)
-  target_link_libraries(sessioncl "${Boost_SYSTEM_LIBRARY}"
-                                  "${Boost_FILESYSTEM_LIBRARY}")
+find_package(Boost COMPONENTS system filesystem)
+if(${Boost_SYSTEM_FOUND})
+if(${Boost_FILESYSTEM_FOUND})
+    add_definitions(-DBOOST_FILESYSTEM)
+    target_link_libraries(sessioncl "${Boost_SYSTEM_LIBRARY}"
+                                    "${Boost_FILESYSTEM_LIBRARY}")
+endif()
+endif()
