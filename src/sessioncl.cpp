@@ -76,6 +76,9 @@ int main (int argc, char **argv){
   memcpy (prog_name
          , command.filename().string().c_str()
          , sizeof(char) * len_command);
+  #else
+  cout << "FIXME: boost filesystem required." << endl;
+  exit(-1);
   #endif
 
   while ((opt = getopt_long ( argc
