@@ -1,11 +1,3 @@
-
-#ifdef BOOST_FILESYSTEM
-#include <boost/filesystem.hpp>
-#else
-#include <libgen.h>
-#endif
-
-#include <clang-c/Index.h>
 #include <iostream>
 #include <stdio.h>
 #include <ctype.h>
@@ -13,12 +5,26 @@
 #include <string.h>
 #include <getopt.h>
 
+#ifdef BOOST_FILESYSTEM
+#include <boost/filesystem.hpp>
+#else
+#include <libgen.h>
+#endif
+
+// Using LibCLang for two reasons:
+//    1) Apparently, this is the "stable/backwards-compatible interface"
+//    2) It provides a high-level interface to the clang AST ... which is what
+//    we want? We don't really want access to the full details of the CLang AST
+//    to infer a "session type" from OpenCL code.
+#include <clang-c/Index.h>
+
 #include "log.h"
 #include "sessioncl.h"
 
 #ifdef BOOST_FILESYSTEM
 namespace fs = boost::filesystem;
 #endif
+
 using namespace std;
 
 ostream& operator<<(ostream& stream, const CXString& str)
@@ -61,6 +67,46 @@ void print_version_and_exit() {
   exit(0);
 }
 
+std::string getCursorKindName( CXCursorKind cursorKind )
+{
+  CXString kindName  = clang_getCursorKindSpelling( cursorKind );
+  std::string result = clang_getCString( kindName );
+
+  clang_disposeString( kindName );
+  return result;
+}
+
+std::string getCursorSpelling( CXCursor cursor )
+{
+  CXString cursorSpelling = clang_getCursorSpelling( cursor );
+  std::string result      = clang_getCString( cursorSpelling );
+
+  clang_disposeString( cursorSpelling );
+  return result;
+}
+
+CXChildVisitResult visitAST( CXCursor cursor, CXCursor /* parent */, CXClientData clientData )
+{
+  CXSourceLocation location = clang_getCursorLocation( cursor );
+  if( clang_Location_isFromMainFile( location ) == 0 )
+    return CXChildVisit_Continue;
+
+  CXCursorKind cursorKind = clang_getCursorKind( cursor );
+
+  unsigned int curLevel  = *( reinterpret_cast<unsigned int*>( clientData ) );
+  unsigned int nextLevel = curLevel + 1;
+
+  std::cout << std::string( curLevel, '-' ) << " " << getCursorKindName(
+  cursorKind ) << " (" << getCursorSpelling( cursor ) << ")\n";
+
+  clang_visitChildren( cursor,
+                       visitAST,
+                       &nextLevel );
+
+  return CXChildVisit_Continue;
+}
+
+
 int main (int argc, char **argv){
   int opt;
   char **files;
@@ -79,6 +125,7 @@ int main (int argc, char **argv){
   int len_command = sizeof(char) * (strlen(commstr) + 1);
   prog_name = (char *) malloc (len_command);
   memcpy (prog_name, commstr, len_command);
+  prog_name[len_command] = 0;
 
 #else
 
@@ -89,6 +136,7 @@ int main (int argc, char **argv){
   int len_command = sizeof(char) * (strlen(commstr) + 1);
   prog_name = (char *) malloc (len_command);
   memcpy (prog_name, commstr, len_command);
+  prog_name[len_command] = 0;
 
 #endif
 
@@ -120,9 +168,10 @@ int main (int argc, char **argv){
         verbose_flag = 1;
         break;
       case '\1':
-        if ((files = (char **)realloc
-                                ( path_input_files
-                                , (num_inputs + 1)* sizeof (char *))) == NULL){
+        if ((files
+              = (char **)realloc
+                           ( path_input_files
+                           , (num_inputs + 1)* sizeof (char *))) == NULL){
           PANIC("Cannot allocate memory for input file list");
         }
         path_input_files = files;
@@ -146,7 +195,8 @@ int main (int argc, char **argv){
       PANIC("Cannot allocate memory for input file list");
     }
     path_input_files = files;
-    path_input_files[num_inputs] = (char *)calloc(sizeof(char), strlen(argv[i])+1);
+    path_input_files[num_inputs]
+      = (char *)calloc(sizeof(char), strlen(argv[i])+1);
     memcpy( path_input_files[num_inputs]
           , argv[i]
           , sizeof(char) * strlen(argv[i]));
@@ -162,29 +212,27 @@ int main (int argc, char **argv){
     print_usage_and_exit();
   }
 
-  // EXAMPLE CODE
+  // EXAMPLE LIBLANG CODE
   for (int i = 0; i < num_inputs; i++ ) {
+
+    MSG("Processing %s", path_input_files[i]);
+
     CXIndex index = clang_createIndex(0, 0);
     CXTranslationUnit unit = clang_parseTranslationUnit(
       index,
       path_input_files[i], nullptr, 0,
       nullptr, 0,
       CXTranslationUnit_None);
-    if (unit == nullptr)
-    {
+    if (unit == nullptr){
       ERROR("Unable to parse translation unit. Quitting.");
     }
 
+    unsigned level = 0;
     CXCursor cursor = clang_getTranslationUnitCursor(unit);
     clang_visitChildren(
       cursor,
-      [](CXCursor c, CXCursor parent, CXClientData client_data)
-      {
-        cout << "Cursor '" << clang_getCursorSpelling(c) << "' of kind '"
-          << clang_getCursorKindSpelling(clang_getCursorKind(c)) << "'\n";
-        return CXChildVisit_Recurse;
-      },
-      nullptr);
+      visitAST,
+      &level);
 
     clang_disposeTranslationUnit(unit);
     clang_disposeIndex(index);
