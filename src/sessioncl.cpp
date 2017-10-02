@@ -1,6 +1,8 @@
 
 #ifdef BOOST_FILESYSTEM
 #include <boost/filesystem.hpp>
+#else
+#include <libgen.h>
 #endif
 
 #include <clang-c/Index.h>
@@ -11,6 +13,7 @@
 #include <string.h>
 #include <getopt.h>
 
+#include "log.h"
 #include "sessioncl.h"
 
 #ifdef BOOST_FILESYSTEM
@@ -69,17 +72,25 @@ int main (int argc, char **argv){
     };
   int option_index = 0;
 
-  #ifdef BOOST_FILESYSTEM
+#ifdef BOOST_FILESYSTEM
+
   fs::path command = argv[0];
-  int len_command = strlen(command.filename().string().c_str())+1;
-  prog_name = (char *) malloc (sizeof(char) * len_command);
-  memcpy (prog_name
-         , command.filename().string().c_str()
-         , sizeof(char) * len_command);
-  #else
-  cout << "FIXME: boost filesystem required." << endl;
-  exit(-1);
-  #endif
+  const char * commstr = command.filename().string().c_str();
+  int len_command = sizeof(char) * (strlen(commstr) + 1);
+  prog_name = (char *) malloc (len_command);
+  memcpy (prog_name, commstr, len_command);
+
+#else
+
+  MSG("Handling paths using POSIX `dirname` and `basename` functions.");
+  MSG("In case of problems try installing boost filesystem and rebuilding.");
+
+  char * commstr = basename(argv[0]);
+  int len_command = sizeof(char) * (strlen(commstr) + 1);
+  prog_name = (char *) malloc (len_command);
+  memcpy (prog_name, commstr, len_command);
+
+#endif
 
   while ((opt = getopt_long ( argc
                             , argv
@@ -112,8 +123,7 @@ int main (int argc, char **argv){
         if ((files = (char **)realloc
                                 ( path_input_files
                                 , (num_inputs + 1)* sizeof (char *))) == NULL){
-          cout << "Panic! Error allocating input file list" << endl;
-          exit(-1);
+          PANIC("Cannot allocate memory for input file list");
         }
         path_input_files = files;
         path_input_files[num_inputs] =
@@ -133,8 +143,7 @@ int main (int argc, char **argv){
     if ((files = (char **)realloc
                              ( path_input_files
                              , (num_inputs+1) * sizeof (char *))) == NULL){
-      cout << "Panic! Error allocating input file list" << endl;
-      exit(-1);
+      PANIC("Cannot allocate memory for input file list");
     }
     path_input_files = files;
     path_input_files[num_inputs] = (char *)calloc(sizeof(char), strlen(argv[i])+1);
@@ -153,32 +162,33 @@ int main (int argc, char **argv){
     print_usage_and_exit();
   }
 
+  // EXAMPLE CODE
+  for (int i = 0; i < num_inputs; i++ ) {
+    CXIndex index = clang_createIndex(0, 0);
+    CXTranslationUnit unit = clang_parseTranslationUnit(
+      index,
+      path_input_files[i], nullptr, 0,
+      nullptr, 0,
+      CXTranslationUnit_None);
+    if (unit == nullptr)
+    {
+      ERROR("Unable to parse translation unit. Quitting.");
+    }
+
+    CXCursor cursor = clang_getTranslationUnitCursor(unit);
+    clang_visitChildren(
+      cursor,
+      [](CXCursor c, CXCursor parent, CXClientData client_data)
+      {
+        cout << "Cursor '" << clang_getCursorSpelling(c) << "' of kind '"
+          << clang_getCursorKindSpelling(clang_getCursorKind(c)) << "'\n";
+        return CXChildVisit_Recurse;
+      },
+      nullptr);
+
+    clang_disposeTranslationUnit(unit);
+    clang_disposeIndex(index);
+  }
+
 }
 
-
-//  CXIndex index = clang_createIndex(0, 0);
-//  CXTranslationUnit unit = clang_parseTranslationUnit(
-//    index,
-//    "header.hpp", nullptr, 0,
-//    nullptr, 0,
-//    CXTranslationUnit_None);
-//  if (unit == nullptr)
-//  {
-//    cerr << "Unable to parse translation unit. Quitting." << endl;
-//    exit(-1);
-//  }
-//
-//  CXCursor cursor = clang_getTranslationUnitCursor(unit);
-//  clang_visitChildren(
-//    cursor,
-//    [](CXCursor c, CXCursor parent, CXClientData client_data)
-//    {
-//      cout << "Cursor '" << clang_getCursorSpelling(c) << "' of kind '"
-//        << clang_getCursorKindSpelling(clang_getCursorKind(c)) << "'\n";
-//      return CXChildVisit_Recurse;
-//    },
-//    nullptr);
-//
-//  clang_disposeTranslationUnit(unit);
-//  clang_disposeIndex(index);
-//}

@@ -4,7 +4,7 @@ project (SessionOpenCL)
 # CXX language
 enable_language(CXX)
 # binary produced
-add_executable(sessioncl src/sessioncl.cpp)
+add_executable(sessioncl src/sessioncl.cpp src/log.cpp)
 # Version
 set (sessioncl_VERSION_MAJOR 0)
 set (sessioncl_VERSION_MINOR 0)
@@ -14,6 +14,7 @@ configure_file (
   "${PROJECT_SOURCE_DIR}/src/sessioncl.h.in"
   "${PROJECT_BINARY_DIR}/build/sessioncl.h" )
 # Include directory for configuration file
+include_directories("${PROJECT_BINARY_DIR}/src")
 include_directories("${PROJECT_BINARY_DIR}/build")
 # CMAKE modules
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
