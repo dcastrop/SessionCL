@@ -11,12 +11,12 @@
 #define LOG_DEBUG   2
 #define LOG_VERBOSE 3
 
-#define PANIC(s, ...)    log(LOG_PANIC  , s, ##__VA_ARGS__); exit(LOG_PANIC)
-#define ERROR(s, ...)    log(LOG_ERROR  , s, ##__VA_ARGS__); exit(LOG_ERROR)
-#define MSG(s, ...)      log(LOG_INFO   , s, ##__VA_ARGS__)
-#define WARN(s, ...)     log(LOG_WARN   , s, ##__VA_ARGS__)
-#define DEBUG(s, ...)    log(LOG_DEBUG  , s, ##__VA_ARGS__)
-#define LOG(s, ...)      log(LOG_VERBOSE, s, ##__VA_ARGS__)
+#define PANIC(...)    log(LOG_PANIC  , ##__VA_ARGS__); exit(LOG_PANIC)
+#define ERROR(...)    log(LOG_ERROR  , ##__VA_ARGS__); exit(LOG_ERROR)
+#define MSG(...)      log(LOG_INFO   , ##__VA_ARGS__)
+#define WARN(...)     log(LOG_WARN   , ##__VA_ARGS__)
+#define DEBUG(...)    log(LOG_DEBUG  , ##__VA_ARGS__)
+#define LOG(...)      log(LOG_VERBOSE, ##__VA_ARGS__)
 
 typedef int log_level;
 

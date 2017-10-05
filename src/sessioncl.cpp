@@ -11,12 +11,9 @@
 #include <libgen.h>
 #endif
 
-// Using LibCLang for two reasons:
-//    1) Apparently, this is the "stable/backwards-compatible interface"
-//    2) It provides a high-level interface to the clang AST ... which is what
-//    we want? We don't really want access to the full details of the CLang AST
-//    to infer a "session type" from OpenCL code.
-#include <clang-c/Index.h>
+#include "clang/Frontend/FrontendActions.h"
+#include "clang/Tooling/Tooling.h"
+#include "gtest/gtest.h"
 
 #include "log.h"
 #include "sessioncl.h"
@@ -27,11 +24,11 @@ namespace fs = boost::filesystem;
 
 using namespace std;
 
-ostream& operator<<(ostream& stream, const CXString& str)
-{
-  stream << clang_getCString(str);
-  clang_disposeString(str);
-  return stream;
+
+TEST(runToolOnCode, CanSyntaxCheckCode) {
+  // runToolOnCode returns whether the action was correctly run over the
+  // given code.
+  EXPECT_TRUE(clang::tooling::runToolOnCode(new clang::SyntaxOnlyAction, "class X {};"));
 }
 
 // Constants
@@ -66,46 +63,6 @@ void print_version_and_exit() {
                     << "."  << sessioncl_VERSION_PATCH << endl;
   exit(0);
 }
-
-std::string getCursorKindName( CXCursorKind cursorKind )
-{
-  CXString kindName  = clang_getCursorKindSpelling( cursorKind );
-  std::string result = clang_getCString( kindName );
-
-  clang_disposeString( kindName );
-  return result;
-}
-
-std::string getCursorSpelling( CXCursor cursor )
-{
-  CXString cursorSpelling = clang_getCursorSpelling( cursor );
-  std::string result      = clang_getCString( cursorSpelling );
-
-  clang_disposeString( cursorSpelling );
-  return result;
-}
-
-CXChildVisitResult visitAST( CXCursor cursor, CXCursor /* parent */, CXClientData clientData )
-{
-  CXSourceLocation location = clang_getCursorLocation( cursor );
-  if( clang_Location_isFromMainFile( location ) == 0 )
-    return CXChildVisit_Continue;
-
-  CXCursorKind cursorKind = clang_getCursorKind( cursor );
-
-  unsigned int curLevel  = *( reinterpret_cast<unsigned int*>( clientData ) );
-  unsigned int nextLevel = curLevel + 1;
-
-  std::cout << std::string( curLevel, '-' ) << " " << getCursorKindName(
-  cursorKind ) << " (" << getCursorSpelling( cursor ) << ")\n";
-
-  clang_visitChildren( cursor,
-                       visitAST,
-                       &nextLevel );
-
-  return CXChildVisit_Continue;
-}
-
 
 int main (int argc, char **argv){
   int opt;
@@ -217,25 +174,6 @@ int main (int argc, char **argv){
 
     MSG("Processing %s", path_input_files[i]);
 
-    CXIndex index = clang_createIndex(0, 0);
-    CXTranslationUnit unit = clang_parseTranslationUnit(
-      index,
-      path_input_files[i], nullptr, 0,
-      nullptr, 0,
-      CXTranslationUnit_None);
-    if (unit == nullptr){
-      ERROR("Unable to parse translation unit. Quitting.");
-    }
-
-    unsigned level = 0;
-    CXCursor cursor = clang_getTranslationUnitCursor(unit);
-    clang_visitChildren(
-      cursor,
-      visitAST,
-      &level);
-
-    clang_disposeTranslationUnit(unit);
-    clang_disposeIndex(index);
   }
 
 }
