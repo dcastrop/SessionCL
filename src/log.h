@@ -24,5 +24,6 @@ extern log_level g_loglevel;
 
 const char *log_msg(log_level);
 void log(log_level, const char *,...);
+void set_log_level(log_level);
 
 #endif

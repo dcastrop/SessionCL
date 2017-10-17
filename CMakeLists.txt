@@ -4,7 +4,7 @@ project (SessionOpenCL)
 # CXX language
 enable_language(CXX)
 
-add_executable(sessioncl src/sessioncl.cpp src/log.cpp)
+add_executable(sessioncl src/log.cpp src/sessioncl.cpp)
 
 ### Configure and set up libraries
 SET (CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -20,14 +20,14 @@ target_link_libraries(sessioncl gtest gtest_main)
 find_package(LLVM REQUIRED CONFIG)
 message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
 message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
-set(Clang_DIR "${LLVM_DIR}")
-message("NEW CMAKE MODULE PATH ${CMAKE_MODULE_PATH}")
 message(STATUS "LLVM include directories ${LLVM_INCLUDE_DIRS}")
 include_directories(${LLVM_INCLUDE_DIRS})
 message(STATUS "LLVM link directories ${LLVM_LIBRARY_DIRS}")
 link_directories(${LLVM_LIBRARY_DIRS})
 message(STATUS "LLVM definitions ${LLVM_DEFINITIONS}")
 add_definitions(${LLVM_DEFINITIONS})
+
+llvm_map_components_to_libnames(llvm_libs)
 
 target_link_libraries(sessioncl
   "${LLVM_LIBRARY_DIRS}/libclangFrontend.a"
@@ -41,8 +41,7 @@ target_link_libraries(sessioncl
   "${LLVM_LIBRARY_DIRS}/libclangEdit.a"
   "${LLVM_LIBRARY_DIRS}/libclangLex.a"
   "${LLVM_LIBRARY_DIRS}/libclangTooling.a"
-  "${LLVM_LIBRARY_DIRS}/libLLVM-3.9.1.so"
-
+  "${LLVM_LIBRARY_DIRS}/libLLVM.so"
 )
 
 # find Boost

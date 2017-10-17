@@ -33,3 +33,7 @@ void log(log_level lvl, const char *fmt,...){
     va_end(args);
   }
 }
+
+void set_log_level(log_level lvl){
+  g_loglevel = lvl;
+}
