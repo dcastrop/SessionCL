@@ -1,7 +1,7 @@
-#!/bin/sh
+#!/bin/zsh
 
 [ ! -d ./build ] && ./configure.sh
-cd ./build
+pushd ./build
 make
-cd ..
+popd
 

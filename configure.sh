@@ -1,6 +1,6 @@
-#!/bin/sh
+#!/bin/zsh
 
 [ ! -e ./build ] && mkdir build
-cd build
+pushd build
 cmake ..
-cd ..
+popd
