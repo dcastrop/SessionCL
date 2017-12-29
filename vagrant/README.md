@@ -19,9 +19,15 @@ the machine, installing the package dependencies, namely:
 - JRE 8 (for OpenCL SDK)
 - clang + LLVM (dev)
 
-Simply use vagrant to setup a virtual machine:
+The VM is in https://imperiallondon-my.sharepoint.com/personal/cn06_ic_ac_uk/Documents/package.box?csf=1&e=849709fd054947eba048a72e76feb2f5
+
+Simply use vagrant to setup a virtual machine (from scratch):
 
     $ vagrant up # in this directory with Vagrantfile
+
+Or use the precompiled VM:
+
+    $ vagrant init package.box # from link above
 
 Then use ssh to access the machine:
 
