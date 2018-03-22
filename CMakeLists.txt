@@ -4,7 +4,7 @@ project (SessionOpenCL)
 # CXX language
 enable_language(CXX)
 
-add_executable(sessioncl src/log.cpp src/sessioncl.cpp)
+add_executable(sessioncl src/log/log.cpp src/sessioncl.cpp)
 
 ### Configure and set up libraries
 SET (CMAKE_EXPORT_COMPILE_COMMANDS ON)

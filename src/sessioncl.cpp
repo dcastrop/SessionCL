@@ -19,7 +19,7 @@
 #include "clang/Tooling/CommonOptionsParser.h"
 #include "llvm/Support/CommandLine.h"
 
-#include "log.h"
+#include "log/log.h"
 #include "sessioncl.h"
 
 #ifdef BOOST_FILESYSTEM
