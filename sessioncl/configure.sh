@@ -1,4 +1,4 @@
-#!/bin/zsh
+#!/bin/bash
 
 [ ! -e ./build ] && mkdir build
 pushd build
