@@ -1,8 +1,9 @@
-cmake_minimum_required (VERSION 3.7 FATAL_ERROR)
+cmake_minimum_required (VERSION 3.5 FATAL_ERROR)
 
 project (SessionOpenCL)
 # CXX language
 enable_language(CXX)
+set(CMAKE_CXX_STANDARD 11) # Must use C++11
 
 add_executable(sessioncl src/log/log.cpp src/sessioncl.cpp)
 
