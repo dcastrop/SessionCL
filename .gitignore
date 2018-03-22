@@ -1,2 +1,4 @@
 .vagrant
+sessioncl/build
 *.log
+*.swp
