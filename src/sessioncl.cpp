@@ -11,6 +11,9 @@
 #include <libgen.h>
 #endif
 
+#include "clang/AST/ASTConsumer.h"
+#include "clang/AST/RecursiveASTVisitor.h"
+#include "clang/Frontend/CompilerInstance.h"
 #include "clang/Frontend/FrontendActions.h"
 #include "clang/Tooling/Tooling.h"
 #include "clang/Tooling/CommonOptionsParser.h"
@@ -39,9 +42,50 @@ void print_version_and_exit() {
 
 static llvm::cl::OptionCategory SessionCLCategory("sessioncl options");
 // static cl::extrahelp CommonHelp(CommonOptionsParser::HelpMessage);
-static cl::opt<bool> verbose("verbose", cl::desc("Set verbose mode"), cl::Optional, cl::cat(SessionCLCategory));
+static cl::opt<bool> verbose("verbose",
+                             cl::desc("Set verbose mode"),
+                             cl::Optional,
+                             cl::cat(SessionCLCategory));
+
+
+class TraverseASTVisitor
+  : public clang::RecursiveASTVisitor<TraverseASTVisitor> {
+public:
+  bool TraverseDecl(clang::Decl * D) {
+    clang::RecursiveASTVisitor<TraverseASTVisitor>::TraverseDecl(D);
+    return true;
+  }
+  bool TraverseStmt(clang::Stmt * S) {
+    S -> dump();
+    clang::RecursiveASTVisitor<TraverseASTVisitor>::TraverseStmt(S);
+    return true;
+  }
+  bool TraverseType(clang::QualType T) {
+    clang::RecursiveASTVisitor<TraverseASTVisitor>::TraverseType(T);
+    return true;
+  }
+};
+
+class TraverseASTConsumer : public clang::ASTConsumer {
+public:
+  virtual void HandleTranslationUnit(clang::ASTContext &Context) {
+   Visitor.TraverseDecl(Context.getTranslationUnitDecl());
+  }
+private:
+  TraverseASTVisitor Visitor;
+};
+
+class TraverseASTAction : public clang::ASTFrontendAction {
+public:
+  virtual std::unique_ptr<clang::ASTConsumer> CreateASTConsumer(
+    clang::CompilerInstance &Compiler, llvm::StringRef InFile) {
+    return std::unique_ptr<clang::ASTConsumer>(
+       new TraverseASTConsumer);
+  }
+};
 
 int main (int argc, const char **argv){
+
 
 #ifdef BOOST_FILESYSTEM
 
@@ -73,7 +117,8 @@ int main (int argc, const char **argv){
     set_log_level(LOG_VERBOSE);
   }
 
-  return Tool.run(newFrontendActionFactory<clang::SyntaxOnlyAction>().get());
+  int result = Tool.run(newFrontendActionFactory<TraverseASTAction>().get());
 
+  return result;
 }
 

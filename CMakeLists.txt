@@ -56,7 +56,7 @@ endif()
 
 
 ### binary
-set (CMAKE_CXX_FLAGS "-Wall -pedantic")
+set (CMAKE_CXX_FLAGS "-Wall -Wno-comment -pedantic")
 # Version
 set (sessioncl_VERSION_MAJOR 0)
 set (sessioncl_VERSION_MINOR 0)

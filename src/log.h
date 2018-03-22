@@ -15,7 +15,7 @@
 #define ERROR(...)    log(LOG_ERROR  , ##__VA_ARGS__); exit(LOG_ERROR)
 #define MSG(...)      log(LOG_INFO   , ##__VA_ARGS__)
 #define WARN(...)     log(LOG_WARN   , ##__VA_ARGS__)
-#define DEBUG(...)    log(LOG_DEBUG  , ##__VA_ARGS__)
+#define LDEBUG(...)   log(LOG_DEBUG  , ##__VA_ARGS__)
 #define LOG(...)      log(LOG_VERBOSE, ##__VA_ARGS__)
 
 typedef int log_level;
