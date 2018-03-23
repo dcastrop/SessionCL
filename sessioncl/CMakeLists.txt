@@ -5,7 +5,10 @@ project (SessionOpenCL)
 enable_language(CXX)
 set(CMAKE_CXX_STANDARD 11) # Must use C++11
 
-add_executable(sessioncl src/log/log.cpp src/sessioncl.cpp)
+add_executable(sessioncl
+  src/log/log.cpp
+  src/sessioncl/ocl2session.cpp
+  src/sessioncl.cpp)
 
 ### Configure and set up libraries
 SET (CMAKE_EXPORT_COMPILE_COMMANDS ON)
