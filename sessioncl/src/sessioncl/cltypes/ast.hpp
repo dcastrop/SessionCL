@@ -5,7 +5,11 @@ using namespace std;
 
 namespace clty {
 
+  class CltyVisitor;
+
   class Stmt {
+  public:
+    virtual void accept(class CltyVisitor &v) = 0;
   };
 
   class LetIn : public Stmt {
@@ -13,9 +17,12 @@ namespace clty {
     string idl;
     string chan;
     unsigned int num;
+    void accept(class CltyVisitor &v);
   };
 
   class Prefix : public Stmt {
+  public:
+    virtual void accept(class CltyVisitor &v);
   };
 
   class Send : public Prefix {
