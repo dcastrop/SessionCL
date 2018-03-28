@@ -59,11 +59,16 @@ int main (int argc, const char **argv){
 #else
 
   logger::write(LOG_INFO, "Handling\
-paths using POSIX `dirname` and `basename` functions.");
+ paths using POSIX `dirname` and `basename` functions.");
   logger::write(LOG_INFO, "In case\
-of problems try installing boost filesystem and rebuilding.");
+ of problems try installing boost filesystem and rebuilding.");
 
-  char * commstr = basename(argv[0]);
+  char * path = (char *)malloc(sizeof(char) * (strlen(argv[0]) + 1));
+  if (strcpy(path, argv[0]) == NULL) {
+    logger::write(LOG_ERROR, "Failed to allocate memory for input");
+    exit(-1);
+  }
+  char * commstr = basename(path);
   int len_command = sizeof(char) * (strlen(commstr) + 1);
   prog_name = (char *) malloc (len_command);
   memcpy (prog_name, commstr, len_command);
