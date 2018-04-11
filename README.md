@@ -1,3 +1,116 @@
+Session Types for Deadlock Detection in OpenCL
+================================================================================
+
+## Directory tree
+
+The contents of this project are under `sessioncl`:
+
+***FIXME: removed outdated stuff. Rewrite for consistency***
+
+```
+.
+├── build.sh
+├── clean.sh
+├── CMakeLists.txt
+├── configure.sh
+├── README.md
+├── src
+└── test
+```
+
+* `build.sh` configures and compiles the project into directory `build`. If the
+  directory does not exist, it is created by `configure.sh`.
+
+* `clean.sh` removes directory `build`, and all of its contents.
+
+* `cmake` is a directory that contains `CMake` modules, as specified in
+  `CMakeLists.txt`.
+
+  * `cmake/FindLibClang.cmake` is a `CMake` module that searches the `libclang`
+    library in the system.
+
+* `CMakeLists.txt` the basic `CMake` project file.
+
+* `configure.sh` runs `cmake` command, and generates the contents under
+  directory `build`. If the directory does not exist, it is created.
+
+* `README.md` project README file
+
+* `src` source code for this project.
+
+* `test` test C programs.
+
+## Configuring, Building, Installing
+
+This project uses the CMake build automation tools. The scripts `clean.sh`,
+`configure.sh` and `build.sh` have been added for simplicify.
+
+1. `./clean.sh` will remove the directory `build`.
+
+2. `./configure.sh` creates directory `build` (if needed), and generates the
+   build (Makefile) files using `cmake`.
+
+3. `./build.sh` runs `./configure.sh` (if needed), and builds the project.
+   The output binary file is placed in `./build/sessioncl`
+
+## Running
+
+Use the command `./build/sessioncl [ -h | --help ]` for more information about
+the options. The basic usage is:
+
+`Usage: ./sessioncl [options] <file>...`
+
+***TODO:*** add usage description as we start filling project with details.
+
+## Testing
+
+***FIXME*** not yet done.
+
+## Internals
+
+The source files are the following:
+
+```
+.
+├── log.hpp
+├── sessioncl.cpp
+└── sessioncl.h.in
+```
+
+Under directory ./src, there is a basic prototype that uses `libclang` to
+to parse a C program, and traverses the `CLang` AST representation of the
+program.
+
+
+## General CLang and OpenCL information.
+
+General information, useful for manually testing/debugging the sessioncl tool.
+Includes information about the clang AST, and (Altera) OpenCL.
+
+### clang and libclang
+
+#### Printing the AST in a human-readable way
+
+* The `test` directory contains small C program examples.  **So far, no OpenCL
+  program was added to the repository**.
+
+* The following command prints the `test.cpp` AST in a human-readable way.
+  Useful for testing purposes
+
+```bash
+$ clang -Xclang -ast-dump -fsyntax-only <test_file>.cpp
+```
+
+#### AST description
+
+* CLang full AST (i.e. clang top level declaration) is represented using
+  `TranslationUnitDecl`:
+  - ***TODO***
+
+#### AST matcher
+
+
+
 Use Vagrant to setup testing VM
 ===============================
 
